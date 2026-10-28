@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090a">
+<meta name="robots" content="noindex, nofollow">
+<title>信任本地证书 · 上帝之眼</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #07090a;
+    --ink: #eee9dd;
+    --muted: #8d908b;
+    --gold: #d6b56f;
+    --gold-bright: #f1daa3;
+    --line: rgba(214, 181, 111, 0.16);
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    --mono: "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(214,181,111,.1), transparent 30rem),
+      radial-gradient(circle at 92% 20%, rgba(85,113,103,.06), transparent 26rem),
+      var(--bg);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size: 54px 54px;
+    mask-image: radial-gradient(ellipse at 50% 0%, black, transparent 75%);
+  }
+  a { color: var(--gold); text-decoration: none; }
+  a:hover { color: var(--gold-bright); }
+  .wrap { position: relative; z-index: 1; width: min(960px, calc(100% - 40px)); margin: 0 auto; padding: 30px 0 60px; }
+  .http-bar {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 26px; padding: 8px 14px; border: 1px solid rgba(227,183,95,.22);
+    border-radius: 8px; background: rgba(227,183,95,.05); color: #d8bd83;
+    font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-align: center;
+  }
+  .eye {
+    width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line);
+    display: grid; place-items: center; flex: 0 0 auto;
+    background: radial-gradient(circle, rgba(214,181,111,.13), transparent 68%);
+  }
+  .eye svg { width: 31px; height: 31px; color: var(--gold); }
+  .top { display: flex; align-items: center; gap: 14px; }
+  .brand { display: flex; flex-direction: column; gap: 1px; }
+  .brand b { font-family: "Songti SC", "STSong", serif; font-size: 21px; font-weight: 600; letter-spacing: .18em; }
+  .brand span { color: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .3em; }
+  .top-meta { margin-left: auto; color: var(--muted); font-family: var(--mono); font-size: 9px; letter-spacing: .1em; }
+  .hero { padding: 74px 0 40px; max-width: 760px; }
+  .kicker { color: var(--gold); font-family: var(--mono); font-size: 9px; letter-spacing: .24em; text-transform: uppercase; }
+  .kicker::before { content: ""; display: inline-block; width: 22px; height: 1px; margin-right: 10px; vertical-align: middle; background: currentColor; }
+  h1 { margin: 20px 0 18px; font-family: "Songti SC", "STSong", serif; font-size: clamp(40px, 7vw, 68px); font-weight: 500; letter-spacing: .08em; line-height: 1.16; }
+  h1 em { color: var(--gold); font-style: normal; }
+  .lead { max-width: 620px; color: #a4a69f; font-size: 14px; line-height: 1.9; }
+  .lead strong { color: var(--ink); font-weight: 550; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 26px; }
+  .card {
+    padding: 28px; border: 1px solid var(--line); border-radius: 18px;
+    background: linear-gradient(160deg, rgba(214,181,111,.035), transparent 45%), rgba(13,16,18,.78);
+  }
+  .card.primary { border-color: rgba(214,181,111,.3); }
+  .card.mac { grid-column: 1 / -1; margin-top: 16px; }
+  .mac-flex { display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+  .mac-copy { max-width: 620px; }
+  .mac-copy h2 { margin-bottom: 8px; }
+  .mac-copy p { margin: 0; color: #92948d; font-size: 12px; line-height: 1.8; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .device { color: var(--gold); font-family: var(--mono); font-size: 9px; letter-spacing: .18em; }
+  h2 { margin: 6px 0 0; font-family: "Songti SC", "STSong", serif; font-size: 25px; font-weight: 500; letter-spacing: .06em; }
+  .badge { padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .1em; white-space: nowrap; }
+  ol { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  li { position: relative; padding: 0 0 17px 34px; color: #a6a8a1; font-size: 12.5px; line-height: 1.7; counter-increment: step; }
+  li:last-child { padding-bottom: 0; }
+  li::before {
+    content: counter(step); position: absolute; left: 0; top: 1px;
+    width: 22px; height: 22px; border: 1px solid var(--line); border-radius: 50%;
+    color: var(--gold); font-family: var(--mono); font-size: 9px; line-height: 20px; text-align: center;
+  }
+  li b { color: var(--ink); font-weight: 550; }
+  .path { color: #d8c79e; font-family: var(--mono); font-size: 10px; letter-spacing: -.01em; }
+  .btn {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    width: 100%; min-height: 50px; margin-top: 22px; padding: 0 18px;
+    border-radius: 10px; font-size: 12px; font-weight: 600; letter-spacing: .03em;
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.gold { background: linear-gradient(135deg, #f1daa3, #d6b56f 60%, #b9944e); color: #151107; }
+  .btn.gold:hover { color: #0d0a04; }
+  .btn.ghost { border: 1px solid var(--line); color: var(--ink); background: rgba(255,255,255,.02); }
+  .btn .arrow { font-family: var(--mono); font-size: 16px; }
+  .note { margin-top: 18px; color: #696c68; font-size: 10px; line-height: 1.7; }
+  .fingerprint {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 26px; padding: 18px 20px;
+    border: 1px solid var(--line); border-radius: 12px;
+  }
+  .fingerprint span:first-child { color: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .18em; }
+  .fingerprint code { color: #aaa58f; font-family: var(--mono); font-size: 9.5px; line-height: 1.9; word-break: break-all; }
+  .next { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 18px; padding: 24px 28px; border: 1px solid rgba(214,181,111,.18); border-radius: 18px; background: rgba(214,181,111,.025); }
+  .next h3 { margin: 0; font-family: "Songti SC", "STSong", serif; font-size: 20px; font-weight: 500; letter-spacing: .06em; }
+  .next p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; min-height: 38px; padding: 0 15px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 11px; }
+  .pill:hover { color: var(--gold); border-color: var(--line-strong); }
+  .pill.gold { color: #171206; background: var(--gold); border-color: var(--gold); }
+  .pill.gold:hover { color: #171206; background: var(--gold-bright); }
+  .foot { display: flex; justify-content: space-between; gap: 20px; margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); color: #5f625f; font-size: 9.5px; letter-spacing: .04em; }
+  .foot .mono { font-family: var(--mono); }
+  @media (max-width: 760px) {
+    .wrap { width: min(100% - 28px, 960px); padding-top: 20px; }
+    .top-meta { display: none; }
+    .hero { padding: 50px 0 28px; }
+    .grid { grid-template-columns: 1fr; }
+    .card.mac { grid-column: 1; }
+    .mac-flex { flex-direction: column; align-items: stretch; gap: 18px; }
+    .card { padding: 22px; }
+    .next { flex-direction: column; align-items: flex-start; padding: 22px; }
+    .foot { flex-direction: column; gap: 5px; }
+    h1 { font-size: 43px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="http-bar">通过 HTTP 打开 · 此页面只用于安装证书，绝不会要求输入密码</div>
+
+  <header class="top">
+    <div class="eye">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" stroke="currentColor" stroke-opacity=".25"/>
+        <path d="M8.5 32c7.2-9.6 14.7-14.4 23.5-14.4S48.3 22.4 55.5 32C48.3 41.6 40.8 46.4 32 46.4S15.7 41.6 8.5 32Z" stroke="currentColor" stroke-width="1.3"/>
+        <circle cx="32" cy="32" r="7.8" stroke="currentColor"/>
+        <circle cx="32" cy="32" r="3.2" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <b>上帝之眼</b>
+      <span>EYE OF GOD · TRUST SETUP</span>
+    </div>
+    <div class="top-meta">LOCAL CA / {{PRIMARY_IP}}</div>
+  </header>
+
+  <section class="hero">
+    <div class="kicker">Secure context required</div>
+    <h1>先让手机，<br>信任你的<em>眼睛</em>。</h1>
+    <p class="lead">
+      浏览器只允许 <strong>HTTPS 页面</strong>调用摄像头。上帝之眼运行在你自己的 Mac 上，
+      没有使用公网域名，因此需要你在手机上安装并信任一张<strong>仅属于这个局域网</strong>的根证书。
+      安装一次即可，之后所有设备都会静默通过安全连接访问。
+    </p>
+  </section>
+
+  <div class="grid">
+    <section class="card primary">
+      <div class="card-head">
+        <div>
+          <div class="device">APPLE · IPHONE / IPAD</div>
+          <h2>安装 iOS 描述文件</h2>
+        </div>
+        <span class="badge">推荐 SAFARI</span>
+      </div>
+      <ol>
+        <li>确认当前使用的是 <b>Safari</b>，点击下方按钮下载描述文件，并在弹窗中选择<b>“允许”</b>。</li>
+        <li>打开 <span class="path">设置 → 通用 → VPN 与设备管理</span>，安装已下载的“上帝之眼 本地根证书”。</li>
+        <li>打开 <span class="path">设置 → 通用 → 关于本机 → 证书信任设置</span>，为 <b>God's Eye Local CA</b> 打开完全信任。</li>
+        <li>回到 Safari，点击页面底部的<b>“打开摄像机端”</b>，确认地址栏的锁形图标正常。</li>
+      </ol>
+      <a class="btn gold" href="/trust/eye-of-god.mobileconfig">
+        <span>安装 iOS 描述文件</span><span class="arrow">↓</span>
+      </a>
+      <p class="note">描述文件不包含任何网络配置或隐私权限，只有一张本地根证书。可随时在“设置 → 通用 → VPN 与设备管理”中移除。</p>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <div class="device">ANDROID · CHROME</div>
+          <h2>安装 Android 证书</h2>
+        </div>
+        <span class="badge">CA CERT</span>
+      </div>
+      <ol>
+        <li>点击下方按钮下载证书文件 <span class="path">eye-of-god-ca.crt</span>。</li>
+        <li>打开 <span class="path">设置 → 安全 → 加密与凭据 → 安装证书 → CA 证书</span>（不同品牌位置略有差异）。</li>
+        <li>选择刚下载的文件，确认安装。系统可能要求输入锁屏密码。</li>
+        <li>回到 Chrome，点击页面底部的<b>“打开摄像机端”</b>，首次连接应不再出现证书警告。</li>
+      </ol>
+      <a class="btn ghost" href="/trust/eye-of-god-ca.crt">
+        <span>下载 Android 证书</span><span class="arrow">↓</span>
+      </a>
+      <p class="note">部分 Android 系统会提示“您的网络可能受到监控”——这是安装本地 CA 的正常提示。这张证书只用于验证你自己的 Mac。</p>
+    </section>
+  </div>
+
+  <section class="card mac">
+    <div class="mac-flex">
+      <div class="mac-copy">
+        <div class="device">MACOS · 运行服务的这台 Mac</div>
+        <h2>这台 Mac 也需要信任证书</h2>
+        <p>管理端同样通过 HTTPS 与实时通道连接。首次使用时，请把证书加入“登录”钥匙串，并将“God's Eye Local CA”设为始终信任。Safari 和 Chrome 会自动使用系统钥匙串。</p>
+        <ol style="margin-top:16px">
+          <li>点击右侧按钮下载证书，双击打开“钥匙串访问”。</li>
+          <li>将证书添加到 <b>“登录”</b> 钥匙串，找到 <b>God's Eye Local CA</b>，双击打开。</li>
+          <li>展开“信任”，把“使用此证书时”设为 <b>始终信任</b>，关闭窗口并输入 Mac 密码。</li>
+          <li>重新打开管理端，确认地址栏锁形图标正常。</li>
+        </ol>
+        <a class="btn ghost" style="margin-top:18px" href="/trust/eye-of-god-ca.crt">下载 Mac 证书 <span class="arrow">↓</span></a>
+      </div>
+      <a class="pill gold" href="{{APP_URL}}" style="flex:0 0 auto">打开管理端 →</a>
+    </div>
+  </section>
+
+  <div class="fingerprint">
+    <span>CA SHA-256 FINGERPRINT</span>
+    <code>{{FINGERPRINT}}</code>
+  </div>
+
+  <section class="next">
+    <div>
+      <h3>证书安装完成了吗？</h3>
+      <p>请用手机连接与 Mac 相同的 Wi-Fi，然后打开摄像机端。首次连接不应再出现“不安全”警告。</p>
+    </div>
+    <div class="links">
+      <a class="pill gold" href="{{CAPTURE_URL}}">打开摄像机端 →</a>
+      <a class="pill" href="{{APP_URL}}">管理员入口</a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>上帝之眼 · 本地证书服务 <span class="mono">HTTP :{{HTTP_PORT}}</span></span>
+    <span>本页无登录功能 · 不会收集任何信息</span>
+  </footer>
+</div>
+</body>
+</html>

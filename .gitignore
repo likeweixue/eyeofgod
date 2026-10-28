@@ -1,0 +1,7 @@
+node_modules/
+data/
+certs/
+tests/artifacts/
+.DS_Store
+*.log
+npm-debug.log*

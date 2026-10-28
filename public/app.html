@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07090a">
+  <meta name="robots" content="noindex, nofollow">
+  <title>监控墙 · 上帝之眼</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/base.css">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body class="app-page">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand-lockup topbar-brand" href="#/wall" aria-label="上帝之眼监控墙">
+        <svg class="brand-eye" width="38" height="38" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-opacity=".18"/>
+          <path d="M8.5 32c7.2-9.6 14.7-14.4 23.5-14.4S48.3 22.4 55.5 32C48.3 41.6 40.8 46.4 32 46.4S15.7 41.6 8.5 32Z" stroke="currentColor" stroke-width="1.2"/>
+          <circle cx="32" cy="32" r="7.8" stroke="currentColor" stroke-opacity=".7"/>
+          <circle cx="32" cy="32" r="3.4" fill="currentColor"/>
+          <path d="M32 1.5v5M32 57.5v5M1.5 32h5M57.5 32h5" stroke="currentColor" stroke-opacity=".65" stroke-width="1.2"/>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-name">上帝之眼</span>
+          <span class="brand-en">EYE OF GOD · LAN</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="主导航">
+        <a href="#/wall" class="nav-item is-active" data-view-link="wall"><span class="nav-index">01</span>监控墙</a>
+        <a href="#/devices" class="nav-item" data-view-link="devices"><span class="nav-index">02</span>设备与接入</a>
+        <a href="#/system" class="nav-item" data-view-link="system"><span class="nav-index">03</span>系统</a>
+      </nav>
+
+      <div class="topbar-right">
+        <div class="top-clock" aria-label="当前时间">
+          <span class="clock-date" id="clock-date">—</span>
+          <span class="clock-time mono" id="clock-time">--:--:--</span>
+        </div>
+        <div class="live-pill" title="在线摄像机">
+          <span class="status-dot online" id="top-live-dot"></span>
+          <span class="mono" id="top-live-count">0</span>
+          <span>路在线</span>
+        </div>
+        <div class="admin-menu">
+          <button class="admin-button" id="admin-menu-button" type="button" aria-haspopup="menu" aria-expanded="false">
+            <span class="avatar">管</span>
+            <span class="admin-label">管理员</span>
+            <span class="chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div class="menu-popover" id="admin-menu" role="menu" hidden>
+            <button type="button" role="menuitem" id="menu-password">修改管理员密码</button>
+            <button type="button" role="menuitem" id="menu-trust">证书安装说明</button>
+            <button type="button" role="menuitem" class="danger" id="menu-logout">退出登录</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="connection-banner" id="connection-banner" hidden>
+      <span class="spinner"></span>
+      <span>实时通道已断开，正在重连…</span>
+      <a href="/trust" target="_blank" rel="noopener">证书安装</a>
+    </div>
+
+    <main class="app-main">
+      <section class="view" id="view-wall" aria-labelledby="wall-title">
+        <div class="page-head">
+          <div>
+            <span class="kicker">Live monitoring</span>
+            <h1 id="wall-title">监控墙</h1>
+            <p>所有经你授权接入的摄像机，会在这里汇聚成一只眼睛。</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-ghost btn-sm" id="refresh-wall" type="button">刷新状态</button>
+            <button class="btn btn-primary" id="add-camera" type="button"><span class="plus">＋</span> 接入摄像机</button>
+          </div>
+        </div>
+
+        <div class="wall-meta">
+          <div class="metric">
+            <span class="metric-label">ONLINE</span>
+            <strong class="mono" id="stat-online">0<span class="metric-total"> / 0</span></strong>
+            <span class="metric-note">在线设备</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">STREAMS</span>
+            <strong class="mono" id="stat-streaming">0</strong>
+            <span class="metric-note">实时画面</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">FRAME RATE</span>
+            <strong class="mono" id="stat-fps">0.0<span class="metric-unit"> fps</span></strong>
+            <span class="metric-note">平均帧率</span>
+          </div>
+          <div class="metric metric-wide">
+            <span class="metric-label">LINK</span>
+            <strong class="metric-link"><span class="status-dot online"></span>局域网直连 · 不经过云端</strong>
+            <span class="metric-note">单击画面可放大查看</span>
+          </div>
+          <div class="wall-link-state">
+            <span class="link-pulse" id="wall-pulse"></span>
+            <span id="wall-link-label">实时通道连接中</span>
+          </div>
+        </div>
+
+        <div class="video-grid" id="video-grid" aria-live="polite"></div>
+
+        <div class="empty-state wall-empty" id="wall-empty" hidden>
+          <span class="eye-rings" aria-hidden="true"><span class="core"></span></span>
+          <h3>还没有摄像机接入</h3>
+          <p>点击“接入摄像机”生成专属二维码。用手机扫码、安装本地证书、打开摄像机并按下开始直播，画面就会出现在这里。</p>
+          <button class="btn btn-primary" id="empty-add" type="button">接入第一台摄像机</button>
+        </div>
+
+        <div class="wall-footnote">
+          <span><span class="status-dot live"></span> LIVE 表示手机正在主动传输画面</span>
+          <span>每台摄像机同一时间只允许一个绑定设备</span>
+        </div>
+      </section>
+
+      <section class="view" id="view-devices" aria-labelledby="devices-title" hidden>
+        <div class="page-head">
+          <div>
+            <span class="kicker">Devices &amp; access</span>
+            <h1 id="devices-title">设备与接入</h1>
+            <p>管理每一台经授权的设备，生成一次性接入码，或断开某一路直播。</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" id="add-camera-devices" type="button"><span class="plus">＋</span> 接入摄像机</button>
+          </div>
+        </div>
+
+        <div class="devices-layout">
+          <div>
+            <div class="section-label">
+              <span>已接入设备</span>
+              <span class="mono" id="device-count">0 DEVICES</span>
+            </div>
+            <div class="devices-list" id="devices-list"></div>
+            <div class="empty-state devices-empty" id="devices-empty" hidden>
+              <h3>还没有设备</h3>
+              <p>接入第一台手机或平板，把它变成一只可以随时查看的眼睛。</p>
+              <button class="btn btn-primary btn-sm" id="empty-devices-add" type="button">接入摄像机</button>
+            </div>
+          </div>
+
+          <aside class="side-stack">
+            <div class="side-card">
+              <span class="side-kicker">QUICK START</span>
+              <h3>把手机变成摄像机</h3>
+              <ol class="step-list">
+                <li><b>同一 Wi-Fi</b><span>手机与这台 Mac 连接同一个局域网。</span></li>
+                <li><b>安装本地证书</b><span>首次接入时，用 Safari 安装并信任本地 CA。</span></li>
+                <li><b>扫码接入</b><span>生成一次性接入码，用手机摄像机页输入或扫码。</span></li>
+                <li><b>主动开始直播</b><span>手机页面上按下“开始直播”后，画面才会出现。</span></li>
+              </ol>
+              <button class="side-link" id="trust-guide-link" type="button">打开证书安装页面 <span>↗</span></button>
+            </div>
+
+            <div class="side-card subtle">
+              <span class="side-kicker">PRIVACY BY DESIGN</span>
+              <h3>画面不会偷偷开始</h3>
+              <p>摄像机页面必须由设备持有人主动点击开始，且始终显示正在直播。管理员也可以随时从监控墙停止任意一路采集。</p>
+              <p class="side-foot">仅采集视频 · 不采集麦克风 · 不经过公网</p>
+            </div>
+          </aside>
+        </div>
+
+        <div class="events-panel">
+          <div class="section-label">
+            <span>最近事件</span>
+            <span class="mono">LOCAL AUDIT LOG</span>
+          </div>
+          <div class="event-list" id="events-list"></div>
+          <p class="events-empty" id="events-empty" hidden>暂时没有事件记录。</p>
+        </div>
+      </section>
+
+      <section class="view" id="view-system" aria-labelledby="system-title" hidden>
+        <div class="page-head">
+          <div>
+            <span class="kicker">System &amp; security</span>
+            <h1 id="system-title">系统</h1>
+            <p>服务运行在你自己的 Mac 上。这里是连接方式、证书与安全边界。</p>
+          </div>
+          <div class="system-status">
+            <span class="status-dot online"></span>
+            <span>服务运行中</span>
+            <span class="mono" id="uptime">—</span>
+          </div>
+        </div>
+
+        <div class="system-grid">
+          <section class="panel panel-span">
+            <div class="panel-head">
+              <div>
+                <span class="side-kicker">CONNECTION</span>
+                <h2>局域网入口</h2>
+              </div>
+              <span class="chip">LOCAL ONLY</span>
+            </div>
+            <div class="address-list">
+              <div class="address-row">
+                <span class="address-label">管理端</span>
+                <code class="address-value" id="address-app">—</code>
+                <button class="copy-btn" type="button" data-copy-target="address-app">复制</button>
+              </div>
+              <div class="address-row">
+                <span class="address-label">摄像机端</span>
+                <code class="address-value" id="address-capture">—</code>
+                <button class="copy-btn" type="button" data-copy-target="address-capture">复制</button>
+              </div>
+              <div class="address-row">
+                <span class="address-label">证书安装</span>
+                <code class="address-value" id="address-trust">—</code>
+                <button class="copy-btn" type="button" data-copy-target="address-trust">复制</button>
+              </div>
+            </div>
+            <p class="panel-note">其他设备必须连接同一 Wi-Fi。IP 地址由路由器分配，若发生变化，重启服务后二维码会自动更新。</p>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="side-kicker">IDENTITY</span>
+                <h2>管理员与密码</h2>
+              </div>
+            </div>
+            <div class="identity-row">
+              <span class="avatar avatar-lg">管</span>
+              <div>
+                <strong>admin</strong>
+                <span>唯一管理员账户</span>
+              </div>
+            </div>
+            <button class="panel-button" type="button" id="system-password">修改管理员密码 <span>→</span></button>
+            <button class="panel-button" type="button" id="system-logout">退出当前登录 <span>→</span></button>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="side-kicker">TRANSPORT</span>
+                <h2>本地证书</h2>
+              </div>
+              <span class="status-dot online"></span>
+            </div>
+            <p class="panel-copy">HTTPS 由本机 CA 签发。手机安装并信任一次后，摄像头权限才能被浏览器允许。</p>
+            <div class="fingerprint-box">
+              <span>SHA-256</span>
+              <code id="ca-fingerprint">—</code>
+            </div>
+            <button class="panel-button" type="button" id="system-trust">打开证书安装说明 <span>↗</span></button>
+          </section>
+
+          <section class="panel panel-span">
+            <div class="panel-head">
+              <div>
+                <span class="side-kicker">BOUNDARIES</span>
+                <h2>隐私与运行边界</h2>
+              </div>
+            </div>
+            <div class="privacy-grid">
+              <div><span class="privacy-mark">01</span><b>主动开始</b><p>摄像机页面必须由持有人点击开始，页面始终显示红色直播状态。</p></div>
+              <div><span class="privacy-mark">02</span><b>仅限局域网</b><p>服务拒绝公网来源，默认不开放远程访问，不经过任何云端。</p></div>
+              <div><span class="privacy-mark">03</span><b>仅视频</b><p>采集请求明确排除麦克风，不保存历史录像，只保留最近一帧用于快照。</p></div>
+              <div><span class="privacy-mark">04</span><b>随时停止</b><p>管理员可远程断开任意一路，设备端也会立即停止摄像头。</p></div>
+            </div>
+            <p class="panel-note">严禁将本项目用于偷拍、偷窥或任何未经同意的监控。请仅在你拥有或已获得明确同意的设备与场所使用，并遵守当地法律法规。</p>
+          </section>
+
+          <section class="panel panel-span about-panel">
+            <div class="about-brand">
+              <svg width="46" height="46" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-opacity=".25"/>
+                <path d="M8.5 32c7.2-9.6 14.7-14.4 23.5-14.4S48.3 22.4 55.5 32C48.3 41.6 40.8 46.4 32 46.4S15.7 41.6 8.5 32Z" stroke="currentColor"/>
+                <circle cx="32" cy="32" r="7.8" stroke="currentColor"/>
+                <circle cx="32" cy="32" r="3.4" fill="currentColor"/>
+              </svg>
+              <div>
+                <strong>上帝之眼 <span class="mono">EYE OF GOD</span></strong>
+                <span>私有局域网监控中枢 · v0.1.0</span>
+              </div>
+            </div>
+            <div class="about-meta mono">
+              <span>HOST <b id="about-host">—</b></span>
+              <span>STARTED <b id="about-started">—</b></span>
+              <span>STORAGE <b>本机 data/</b></span>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-foot">
+      <span>上帝之眼 <span class="mono">/ EYE OF GOD</span></span>
+      <span>LOCAL-FIRST · AUTHORIZED DEVICES ONLY</span>
+      <span class="mono" id="foot-version">v0.1.0</span>
+    </footer>
+  </div>
+
+  <!-- 添加摄像机 -->
+  <div class="modal-backdrop" id="modal-add-camera" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="add-camera-title">
+      <div class="modal-head">
+        <div>
+          <span class="kicker">New camera</span>
+          <h2 id="add-camera-title">接入一台摄像机</h2>
+          <p>先给这只眼睛起个名字，随后生成一次性接入码。</p>
+        </div>
+        <button class="modal-close" type="button" data-close="modal-add-camera" aria-label="关闭">×</button>
+      </div>
+      <form id="add-camera-form" novalidate>
+        <div class="field">
+          <label class="field-label" for="camera-name"><span>摄像机名称</span><span class="field-meta">REQUIRED</span></label>
+          <input class="input" id="camera-name" name="name" type="text" maxlength="40" placeholder="例如：客厅、门口、书房" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label class="field-label" for="camera-location"><span>位置备注</span><span class="field-meta">OPTIONAL</span></label>
+          <input class="input" id="camera-location" name="location" type="text" maxlength="60" placeholder="例如：电视柜左侧，朝向南阳台" autocomplete="off">
+        </div>
+        <p class="form-error" id="add-camera-error" role="alert"></p>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" data-close="modal-add-camera">取消</button>
+          <button class="btn btn-primary" id="add-camera-submit" type="submit">生成接入码</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 配对 -->
+  <div class="modal-backdrop" id="modal-pairing" aria-hidden="true">
+    <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="pairing-title">
+      <div class="modal-head">
+        <div>
+          <span class="kicker">Pair device</span>
+          <h2 id="pairing-title">让手机看见</h2>
+          <p id="pairing-subtitle">用同一 Wi-Fi 下的手机或平板完成接入。</p>
+        </div>
+        <button class="modal-close" type="button" data-close="modal-pairing" aria-label="关闭">×</button>
+      </div>
+
+      <div class="pair-code-panel">
+        <div>
+          <span class="pair-code-label">ONE-TIME ACCESS CODE</span>
+          <div class="pair-code mono" id="pairing-code">------</div>
+          <span class="pair-expiry" id="pairing-expiry">生成中…</span>
+        </div>
+        <div class="pair-code-aside">
+          <span>接入码只显示一次</span>
+          <button class="btn btn-ghost btn-sm" id="copy-pairing-link" type="button">复制接入链接</button>
+        </div>
+      </div>
+
+      <div class="qr-grid">
+        <div class="qr-card">
+          <span class="qr-step">STEP 01 · 首次接入</span>
+          <div class="qr-frame"><img id="pairing-trust-qr" alt="证书安装二维码" width="160" height="160"></div>
+          <strong>安装本地证书</strong>
+          <p>扫码打开证书安装页，按提示安装并信任。只需做一次。</p>
+          <a class="qr-link" id="pairing-trust-link" href="#" target="_blank" rel="noopener">在浏览器打开 ↗</a>
+        </div>
+        <div class="qr-card">
+          <span class="qr-step">STEP 02 · 摄像机端</span>
+          <div class="qr-frame"><img id="pairing-capture-qr" alt="摄像机接入二维码" width="160" height="160"></div>
+          <strong>扫码并输入接入码</strong>
+          <p>扫码打开摄像机页；接入码通常已自动填入，然后按下开始直播。</p>
+          <a class="qr-link" id="pairing-capture-link" href="#" target="_blank" rel="noopener">在浏览器打开 ↗</a>
+        </div>
+      </div>
+
+      <div class="pair-warning" id="pairing-warning" hidden></div>
+      <div class="modal-actions">
+        <span class="pair-hint">同一时间只能绑定一台设备，重新绑定会断开旧设备。</span>
+        <button class="btn btn-primary" type="button" data-close="modal-pairing">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑设备 -->
+  <div class="modal-backdrop" id="modal-edit-camera" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-camera-title">
+      <div class="modal-head">
+        <div>
+          <span class="kicker">Edit camera</span>
+          <h2 id="edit-camera-title">编辑设备信息</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="modal-edit-camera" aria-label="关闭">×</button>
+      </div>
+      <form id="edit-camera-form" novalidate>
+        <input type="hidden" id="edit-camera-id">
+        <div class="field">
+          <label class="field-label" for="edit-camera-name"><span>摄像机名称</span></label>
+          <input class="input" id="edit-camera-name" type="text" maxlength="40" required>
+        </div>
+        <div class="field">
+          <label class="field-label" for="edit-camera-location"><span>位置备注</span></label>
+          <input class="input" id="edit-camera-location" type="text" maxlength="60">
+        </div>
+        <p class="form-error" id="edit-camera-error" role="alert"></p>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" data-close="modal-edit-camera">取消</button>
+          <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 修改密码 -->
+  <div class="modal-backdrop" id="modal-password" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="password-title">
+      <div class="modal-head">
+        <div>
+          <span class="kicker">Admin credential</span>
+          <h2 id="password-title">修改管理员密码</h2>
+          <p>保存后，其他设备上的管理员登录会立即失效。</p>
+        </div>
+        <button class="modal-close" type="button" data-close="modal-password" aria-label="关闭">×</button>
+      </div>
+      <form id="password-form" novalidate>
+        <div class="field">
+          <label class="field-label" for="current-password"><span>当前密码</span></label>
+          <input class="input" id="current-password" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label class="field-label" for="password-new"><span>新密码</span><span class="field-meta">MIN. 8 CHARS</span></label>
+          <input class="input" id="password-new" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <div class="field">
+          <label class="field-label" for="password-confirm"><span>确认新密码</span></label>
+          <input class="input" id="password-confirm" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <p class="form-error" id="password-error" role="alert"></p>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" data-close="modal-password">取消</button>
+          <button class="btn btn-primary" type="submit">更新密码</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 播放器 -->
+  <div class="modal-backdrop player-backdrop" id="modal-player" aria-hidden="true">
+    <div class="modal modal-player" role="dialog" aria-modal="true" aria-labelledby="player-title">
+      <div class="player-head">
+        <div class="player-title-wrap">
+          <span class="status-dot live" id="player-dot"></span>
+          <div>
+            <h2 id="player-title">摄像机</h2>
+            <p id="player-subtitle">—</p>
+          </div>
+        </div>
+        <div class="player-head-actions">
+          <span class="chip" id="player-resolution">—</span>
+          <span class="chip" id="player-fps">0.0 FPS</span>
+          <button class="btn-icon" type="button" id="player-fullscreen" aria-label="全屏播放" title="全屏">⛶</button>
+          <button class="btn-icon" type="button" data-close="modal-player" aria-label="关闭">×</button>
+        </div>
+      </div>
+      <div class="player-stage" id="player-stage">
+        <canvas id="player-canvas" width="1280" height="720"></canvas>
+        <div class="player-placeholder" id="player-placeholder">
+          <span class="eye-rings"><span class="core"></span></span>
+          <span id="player-placeholder-text">等待画面…</span>
+        </div>
+      </div>
+      <div class="player-foot">
+        <div class="player-stats">
+          <span>设备 <b id="player-device">—</b></span>
+          <span>位置 <b id="player-location">未标注</b></span>
+          <span>最后画面 <b class="mono" id="player-last-frame">—</b></span>
+        </div>
+        <div class="player-actions">
+          <button class="btn btn-ghost btn-sm" type="button" id="player-snapshot">保存当前画面</button>
+          <button class="btn btn-danger btn-sm" type="button" id="player-stop">停止这台直播</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用确认框 -->
+  <div class="modal-backdrop" id="modal-confirm" aria-hidden="true">
+    <div class="modal modal-small" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <div class="modal-head">
+        <div>
+          <span class="kicker">Please confirm</span>
+          <h2 id="confirm-title">确认操作</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="modal-confirm" aria-label="关闭">×</button>
+      </div>
+      <p class="confirm-message" id="confirm-message"></p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" data-close="modal-confirm">取消</button>
+        <button class="btn btn-danger" type="button" id="confirm-action">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toasts" aria-live="polite"></div>
+  <noscript><div class="noscript">上帝之眼的监控界面需要启用 JavaScript。</div></noscript>
+  <script src="/js/app.js" type="module"></script>
+</body>
+</html>

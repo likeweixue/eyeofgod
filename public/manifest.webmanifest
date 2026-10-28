@@ -1,0 +1,19 @@
+{
+  "name": "上帝之眼 · EYE OF GOD",
+  "short_name": "上帝之眼",
+  "description": "私有局域网监控中枢",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090a",
+  "theme_color": "#07090a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

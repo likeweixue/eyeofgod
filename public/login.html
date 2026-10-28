@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07090a">
+  <meta name="robots" content="noindex, nofollow">
+  <title>上帝之眼 · 管理员入口</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/base.css">
+  <link rel="stylesheet" href="/assets/login.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-visual" aria-label="上帝之眼">
+      <header class="visual-head">
+        <div class="brand-lockup">
+          <svg class="brand-eye" width="42" height="42" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-opacity=".18"/>
+            <circle cx="32" cy="32" r="24" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="2 4"/>
+            <path d="M8.5 32c7.2-9.6 14.7-14.4 23.5-14.4S48.3 22.4 55.5 32C48.3 41.6 40.8 46.4 32 46.4S15.7 41.6 8.5 32Z" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="32" cy="32" r="7.8" stroke="currentColor" stroke-opacity=".7"/>
+            <circle cx="32" cy="32" r="3.4" fill="currentColor"/>
+            <path d="M32 1.5v5M32 57.5v5M1.5 32h5M57.5 32h5" stroke="currentColor" stroke-opacity=".65" stroke-width="1.2"/>
+          </svg>
+          <div class="brand-text">
+            <span class="brand-name">上帝之眼</span>
+            <span class="brand-en">EYE OF GOD · LAN</span>
+          </div>
+        </div>
+        <span class="chip"><span class="status-dot online"></span> PRIVATE NETWORK</span>
+      </header>
+
+      <div class="visual-stage" aria-hidden="true">
+        <div class="orbital orbital-a"></div>
+        <div class="orbital orbital-b"></div>
+        <div class="orbital orbital-c"></div>
+        <div class="scanline"></div>
+        <svg class="great-eye" viewBox="0 0 520 520" fill="none">
+          <defs>
+            <radialGradient id="iris" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f1daa3" stop-opacity=".95"/>
+              <stop offset="35%" stop-color="#b8944c" stop-opacity=".55"/>
+              <stop offset="72%" stop-color="#5f4a22" stop-opacity=".18"/>
+              <stop offset="100%" stop-color="#0a0c0d" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="lid" x1="70" y1="260" x2="450" y2="260" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#d6b56f" stop-opacity=".05"/>
+              <stop offset=".5" stop-color="#f1daa3" stop-opacity=".85"/>
+              <stop offset="1" stop-color="#d6b56f" stop-opacity=".05"/>
+            </linearGradient>
+          </defs>
+          <circle cx="260" cy="260" r="214" stroke="#d6b56f" stroke-opacity=".09" stroke-dasharray="1 8"/>
+          <circle cx="260" cy="260" r="176" stroke="#d6b56f" stroke-opacity=".12"/>
+          <path d="M58 260C126 166 192 120 260 120s134 46 202 140c-68 94-134 140-202 140S126 354 58 260Z" stroke="url(#lid)" stroke-width="1.4"/>
+          <path d="M92 260c55-69 108-104 168-104s113 35 168 104" stroke="#d6b56f" stroke-opacity=".18"/>
+          <path d="M92 260c55 69 108 104 168 104s113-35 168-104" stroke="#d6b56f" stroke-opacity=".18"/>
+          <circle cx="260" cy="260" r="112" fill="url(#iris)"/>
+          <circle cx="260" cy="260" r="104" stroke="#e8cd8d" stroke-opacity=".3"/>
+          <circle cx="260" cy="260" r="78" stroke="#f1daa3" stroke-opacity=".28" stroke-dasharray="1 5"/>
+          <circle cx="260" cy="260" r="46" fill="#060708" stroke="#f1daa3" stroke-opacity=".65"/>
+          <circle cx="260" cy="260" r="13" fill="#f1daa3" fill-opacity=".9"/>
+          <circle cx="275" cy="244" r="4" fill="#fff" fill-opacity=".75"/>
+          <path d="M260 32v32M260 456v32M32 260h32M456 260h32" stroke="#d6b56f" stroke-opacity=".4"/>
+          <path d="M66 66l22 22M454 66l-22 22M66 454l22-22M454 454l-22-22" stroke="#d6b56f" stroke-opacity=".22"/>
+        </svg>
+        <span class="stage-label stage-label-left">LAT 31.2304° N</span>
+        <span class="stage-label stage-label-right">EYE / 001</span>
+      </div>
+
+      <footer class="visual-foot">
+        <p class="visual-quote">“看见，而不打扰。”</p>
+        <div class="principles">
+          <span><i></i>本地直连</span>
+          <span><i></i>主动授权</span>
+          <span><i></i>加密传输</span>
+        </div>
+      </footer>
+    </section>
+
+    <section class="login-main">
+      <div class="login-card" id="auth-card">
+        <div class="login-card-head">
+          <span class="kicker" id="mode-kicker">ADMIN CONSOLE</span>
+          <h1 id="auth-title">管理员登录</h1>
+          <p id="auth-subtitle">进入私有监控中枢，查看已经授权的摄像机。</p>
+        </div>
+
+        <div class="server-strip" id="server-strip" hidden>
+          <span>局域网服务</span>
+          <span class="mono" id="server-address">—</span>
+        </div>
+
+        <form id="login-form" novalidate autocomplete="on">
+          <input class="sr-only" type="text" name="username" autocomplete="username" value="admin" tabindex="-1" aria-hidden="true" readonly>
+          <div class="field">
+            <label class="field-label" for="password">
+              <span>访问密码</span>
+              <span class="field-meta">ADMIN</span>
+            </label>
+            <div class="password-wrap">
+              <input class="input" id="password" name="password" type="password" placeholder="输入管理员密码" autocomplete="current-password" required>
+              <button class="reveal" type="button" data-reveal="password" aria-label="显示密码" aria-pressed="false">显示</button>
+            </div>
+          </div>
+          <p class="form-error" id="login-error" role="alert"></p>
+          <button class="btn btn-primary auth-submit" id="login-submit" type="submit">
+            <span>进入上帝之眼</span>
+            <span class="arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <form id="setup-form" novalidate autocomplete="off" hidden>
+          <div class="setup-notice">
+            <span class="setup-mark">首次启动</span>
+            <p>请查看 Mac 上运行服务的终端窗口，输入其中的 <strong>6 位初始化码</strong>，然后设置管理员密码。</p>
+          </div>
+          <div class="field">
+            <label class="field-label" for="setup-code">
+              <span>初始化码</span>
+              <span class="field-meta">ONE-TIME</span>
+            </label>
+            <input class="input code-input" id="setup-code" name="setup-code" type="text" inputmode="text" maxlength="6" placeholder="••••••" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="new-password">
+              <span>设置管理员密码</span>
+              <span class="field-meta">MIN. 8 CHARS</span>
+            </label>
+            <div class="password-wrap">
+              <input class="input" id="new-password" name="new-password" type="password" placeholder="至少 8 位，建议使用长密码" autocomplete="new-password" minlength="8" required>
+              <button class="reveal" type="button" data-reveal="new-password" aria-label="显示密码" aria-pressed="false">显示</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="confirm-password">
+              <span>确认密码</span>
+              <span class="field-meta">VERIFY</span>
+            </label>
+            <input class="input" id="confirm-password" name="confirm-password" type="password" placeholder="再次输入密码" autocomplete="new-password" minlength="8" required>
+          </div>
+          <p class="form-error" id="setup-error" role="alert"></p>
+          <button class="btn btn-primary auth-submit" id="setup-submit" type="submit">
+            <span>初始化并进入</span>
+            <span class="arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <div class="secure-note">
+          <span class="lock-glyph" aria-hidden="true"></span>
+          <div class="secure-note-copy">
+            <p>此入口仅用于管理员。手机摄像机接入请使用管理员生成的专属二维码，切勿在本页输入接入码。</p>
+            <a class="trust-help" href="/trust" target="_blank" rel="noopener">第一次在这台设备使用？安装本地证书 ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <footer class="login-footer">
+        <span>上帝之眼 <span class="mono">v0.1</span></span>
+        <span>仅限合法授权的私有设备</span>
+      </footer>
+    </section>
+  </main>
+  <div class="toast-stack" id="toasts" aria-live="polite"></div>
+  <script src="/js/login.js" type="module"></script>
+</body>
+</html>

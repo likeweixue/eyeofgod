@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07090a">
+  <meta name="robots" content="noindex, nofollow">
+  <title>摄像机 · 上帝之眼</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/base.css">
+  <link rel="stylesheet" href="/assets/capture.css">
+</head>
+<body class="capture-page">
+  <div class="capture-shell">
+    <header class="capture-header">
+      <a class="brand-lockup" href="/capture" aria-label="上帝之眼摄像机">
+        <svg class="brand-eye" width="36" height="36" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-opacity=".18"/>
+          <path d="M8.5 32c7.2-9.6 14.7-14.4 23.5-14.4S48.3 22.4 55.5 32C48.3 41.6 40.8 46.4 32 46.4S15.7 41.6 8.5 32Z" stroke="currentColor" stroke-width="1.2"/>
+          <circle cx="32" cy="32" r="7.8" stroke="currentColor" stroke-opacity=".7"/>
+          <circle cx="32" cy="32" r="3.4" fill="currentColor"/>
+          <path d="M32 1.5v5M32 57.5v5M1.5 32h5M57.5 32h5" stroke="currentColor" stroke-opacity=".65" stroke-width="1.2"/>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-name">上帝之眼</span>
+          <span class="brand-en">CAMERA NODE · LAN</span>
+        </div>
+      </a>
+      <div class="capture-header-right">
+        <span class="capture-camera-name" id="header-camera-name" hidden>—</span>
+        <span class="capture-conn" id="header-conn"><span class="status-dot"></span><span id="header-conn-text">正在载入</span></span>
+      </div>
+    </header>
+
+    <main class="capture-main">
+      <section class="capture-loading" id="loading-state">
+        <span class="eye-rings" aria-hidden="true"><span class="core"></span></span>
+        <p>正在确认设备状态…</p>
+      </section>
+
+      <section class="pairing-view" id="pairing-view" hidden aria-labelledby="pairing-heading">
+        <div class="pairing-copy">
+          <span class="kicker" id="pairing-kicker">Camera access</span>
+          <h1 id="pairing-heading">把这块屏幕，<br>借给眼睛<em>一会儿</em>。</h1>
+          <p class="pairing-lead">输入管理员提供的一次性接入码。连接成功后，只有你按下“开始直播”，摄像头才会开启并把画面送到管理员设备。</p>
+          <div class="trust-callout">
+            <span class="trust-glyph" aria-hidden="true"></span>
+            <div>
+              <strong>第一次在这台设备上使用？</strong>
+              <p>需要先安装并信任本地证书，否则浏览器不会允许网页调用摄像头。</p>
+              <a href="/trust" id="pairing-trust-link">打开证书安装说明 ↗</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="pairing-card">
+          <div class="pairing-card-head">
+            <span class="kicker">One-time code</span>
+            <h2>接入摄像机</h2>
+            <p>接入码由管理员生成，15 分钟内有效，只能使用一次。</p>
+          </div>
+          <form id="pair-form" novalidate>
+            <div class="field">
+              <label class="field-label" for="pair-code">
+                <span>6 位接入码</span>
+                <span class="field-meta">CASE INSENSITIVE</span>
+              </label>
+              <input class="input code-input" id="pair-code" name="code" type="text" inputmode="text" maxlength="6" placeholder="••••••" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+            </div>
+            <p class="form-error" id="pair-error" role="alert"></p>
+            <button class="btn btn-primary pair-submit" id="pair-submit" type="submit">
+              <span>验证接入码</span><span aria-hidden="true">→</span>
+            </button>
+          </form>
+          <div class="pairing-note">
+            <span class="status-dot online"></span>
+            <span>连接全程在局域网内完成，不经过云端。</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="camera-view" id="camera-view" hidden aria-labelledby="camera-heading">
+        <div class="camera-view-head">
+          <div>
+            <span class="kicker">Camera node</span>
+            <h1 id="camera-heading">设备待机</h1>
+            <p id="camera-subheading">准备就绪。按下开始后，画面才会离开这台设备。</p>
+          </div>
+          <div class="camera-head-state" id="camera-head-state">
+            <span class="status-dot"></span>
+            <span id="camera-state-label">待机</span>
+          </div>
+        </div>
+
+        <div class="camera-layout">
+          <div class="preview-column">
+            <div class="preview-frame" id="preview-frame">
+              <video id="preview" playsinline autoplay muted aria-label="本机摄像头预览"></video>
+              <canvas id="capture-canvas" class="capture-canvas" width="960" height="540" hidden></canvas>
+
+              <div class="preview-idle" id="preview-idle">
+                <span class="eye-rings" aria-hidden="true"><span class="core"></span></span>
+                <strong>摄像头尚未开启</strong>
+                <span>你的设备，你的决定</span>
+              </div>
+
+              <div class="preview-top">
+                <span class="live-indicator" id="live-indicator" hidden><span class="status-dot live"></span> LIVE · 正在采集</span>
+                <span class="secure-indicator" id="secure-indicator">LOCAL · ENCRYPTED</span>
+              </div>
+
+              <div class="preview-live-banner" id="live-banner" hidden>
+                <span class="live-banner-dot"></span>
+                <div>
+                  <strong>这台设备正在向管理员传输画面</strong>
+                  <span>画面仅限局域网内的管理员查看。停止直播会立即关闭摄像头。</span>
+                </div>
+              </div>
+
+              <div class="preview-reconnect" id="reconnect-banner" hidden>
+                <span class="spinner"></span>
+                <span>实时通道中断，正在尝试重连…</span>
+              </div>
+
+              <div class="preview-caption">
+                <span id="preview-name">摄像机</span>
+                <span class="mono" id="preview-meta">READY</span>
+              </div>
+            </div>
+
+            <div class="preview-controls">
+              <button class="btn btn-primary start-button" id="start-button" type="button">
+                <span class="start-icon" aria-hidden="true">◉</span>
+                <span class="start-label">开始直播</span>
+              </button>
+              <div class="control-group">
+                <label class="control-label" for="quality-select">画质</label>
+                <select class="select compact" id="quality-select">
+                  <option value="smooth">流畅 · 省流量</option>
+                  <option value="balanced" selected>均衡 · 推荐</option>
+                  <option value="sharp">高清 · 更清晰</option>
+                </select>
+              </div>
+              <button class="btn btn-ghost icon-control" id="switch-camera" type="button" hidden>切换镜头</button>
+            </div>
+
+            <div class="camera-tip">
+              <span class="tip-mark">i</span>
+              <p>直播时请保持此页面在前台，并让屏幕保持唤醒。锁屏、切到后台或电量过低时，浏览器可能暂停摄像头。</p>
+            </div>
+
+            <p class="form-error capture-error" id="capture-error" role="alert"></p>
+          </div>
+
+          <aside class="device-column">
+            <div class="device-summary">
+              <span class="side-kicker">BOUND DEVICE</span>
+              <div class="device-title">
+                <strong id="device-name">—</strong>
+                <span class="device-status" id="device-status">待机</span>
+              </div>
+              <p id="device-location">—</p>
+              <div class="device-stats">
+                <div><span>传输状态</span><b id="stat-link">未连接</b></div>
+                <div><span>实时帧率</span><b class="mono" id="stat-fps">0.0 fps</b></div>
+                <div><span>分辨率</span><b class="mono" id="stat-resolution">—</b></div>
+                <div><span>上传码率</span><b class="mono" id="stat-bitrate">0 kbps</b></div>
+              </div>
+            </div>
+
+            <div class="privacy-card">
+              <span class="side-kicker">YOUR CONTROL</span>
+              <h3>只有你能开始</h3>
+              <ul>
+                <li><span>01</span>页面不会在后台偷偷启动摄像头</li>
+                <li><span>02</span>仅采集视频，不请求麦克风</li>
+                <li><span>03</span>管理员停止后，本机立即关闭</li>
+                <li><span>04</span>页面始终显示红色直播状态</li>
+              </ul>
+            </div>
+
+            <div class="device-actions-card">
+              <button class="text-button" id="unbind-button" type="button">解除本机绑定</button>
+              <button class="text-button" id="cert-help" type="button">证书安装说明 ↗</button>
+              <span class="device-expiry" id="device-expiry">—</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="capture-footer">
+      <span>上帝之眼 · 摄像机节点</span>
+      <span>仅在你知情并同意时采集</span>
+    </footer>
+  </div>
+
+  <div class="modal-backdrop" id="modal-unbind" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="unbind-title">
+      <div class="modal-head">
+        <div>
+          <span class="kicker">Unbind device</span>
+          <h2 id="unbind-title">解除本机绑定？</h2>
+          <p>解除后，这台设备将立即停止直播，管理员需要生成新的接入码才能重新接入。</p>
+        </div>
+        <button class="modal-close" type="button" data-close="modal-unbind" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" data-close="modal-unbind">取消</button>
+        <button class="btn btn-danger" type="button" id="confirm-unbind">解除绑定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toasts" aria-live="polite"></div>
+  <noscript><div class="noscript">摄像机页面需要启用 JavaScript 才能工作。</div></noscript>
+  <script src="/js/capture.js" type="module"></script>
+</body>
+</html>
